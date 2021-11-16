@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MyFirstClass Application</string>
+    <string name="textview_Value">Hello World!</string>
+    <string name="edittext_Value">Copy!</string>
+</resources>
