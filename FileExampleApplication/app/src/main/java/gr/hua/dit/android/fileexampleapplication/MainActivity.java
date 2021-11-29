@@ -19,6 +19,8 @@ import java.io.OutputStreamWriter;
 
 public class MainActivity extends AppCompatActivity {
 
+    //close and reopen app. Written text will appear on TextView field!
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
