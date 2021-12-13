@@ -2,13 +2,19 @@ package gr.hua.dit.android.sqliteapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,32 +35,34 @@ public class MainActivity extends AppCompatActivity {
                 String name = nameET.getText().toString();
                 String phone = phoneET.getText().toString();
 
-                SQLiteDatabase db = dbHelper.getWritableDatabase();
-                ContentValues values = new ContentValues();
-                values.put(DbHelper.FIELD_1,name);
-                values.put(DbHelper.FIELD_2,phone);
-                long result = db.insert(DbHelper.TABLE_NAME,null,values);
-                Toast.makeText(MainActivity.this,result+"",Toast.LENGTH_SHORT).show();
-                db.close();
+                Contact contact = new Contact(name, phone, MainActivity.this);
+                try {
+                    long result = contact.persist();
+                    Toast.makeText(MainActivity.this,result+"",Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         findViewById(R.id.select_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
-                Cursor results = db.query(DbHelper.TABLE_NAME,
-                        new String[]{"ROWID", DbHelper.FIELD_1},
-                        DbHelper.FIELD_2+"=?",
-                        new String[]{"1234"},
-                        null,
-                        null,
-                        null
-                );
-                if(results.moveToFirst()) {
+                ArrayList<Contact> contacts = Contact.getAllContacts(MainActivity.this);
+                Toast.makeText(MainActivity.this, ""+contacts.get(0).getUser(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        findViewById(R.id.CPbutton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentResolver resolver = getContentResolver();
+                Uri uri = Uri.parse("content://"+DbContract.AUTHORITY+"/"+DbContract.PATH /*+"/3"*/);
+                Cursor cursor = resolver.query(uri, null, null, null, null);
+                if(cursor.moveToFirst()) {
                     do {
-                        Toast.makeText(MainActivity.this, ""+results.getString(0), Toast.LENGTH_SHORT).show();
-                    } while(results.moveToNext());
+                        Log.d("Cursor", cursor.getString(0));
+                    } while(cursor.moveToNext());
                 }
             }
         });
